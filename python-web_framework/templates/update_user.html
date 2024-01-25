@@ -1,0 +1,7 @@
+# Update a User
+@app.route('/update_user/<int:user_id>', methods=['GET','POST'])
+def update_user(user_id):
+    user = User.query.get(user_id)
+    if request.method == 'POST':
+        # code for handling POST request
+    return render_template('update_user.html', user=user)
