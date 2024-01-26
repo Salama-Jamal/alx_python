@@ -1,13 +1,19 @@
 #!/usr/bin/python3
-"""Defines a class BaseGeometry based on 5-base_geometry.py"""
+# 4-inherits_from.py
+# Brennan D Baraban <375@holbertonschool.com>
+"""Defines an inherited class-checking function."""
 
-class BaseGeometry:
-    """Class BaseGeometry.
+
+def inherits_from(obj, a_class):
+    """Checks if an object is an inherited instance of a class.
+
+    Args:
+        obj (any): The object to check.
+        a_class (type): The class to match the type of obj to.
+    Returns:
+        If obj is an inherited instance of a_class - True.
+        Otherwise - False.
     """
-    def area(self):
-        """Area function.
-
-        Raises:
-            Exception: if area is not implemented.
-        """
-        raise Exception("area() is not implemented")
+    if issubclass(type(obj), a_class) and type(obj) != a_class:
+        return True
+    return False
