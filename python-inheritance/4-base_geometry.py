@@ -1,17 +1,19 @@
 #!/usr/bin/python3
+<<<<<<< HEAD
+=======
+# 4-base-geometry.py
+# dricko147
+"""Defines a base geometry class BaseGeometry."""
+
+>>>>>>> 02eecf01c6803a7690f4e1683e7d679fffd87cd5
 
 class BaseGeometry:
-    """
-    A class representing a base geometry.
+    """Represent base geometry."""
 
-    Methods:
-    - area(self): Raises an Exception with the message "area() is not implemented".
-    """
     def area(self):
-        """
-        Calculate the area. This method is not implemented in the base class.
-        """
+        """Not implemented."""
         raise Exception("area() is not implemented")
+<<<<<<< HEAD
 
 BaseGeometry = __import__('4-base_geometry').BaseGeometry
 
@@ -22,3 +24,5 @@ print(dir(bg))
 
 
 
+=======
+>>>>>>> 02eecf01c6803a7690f4e1683e7d679fffd87cd5
