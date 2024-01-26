@@ -1,27 +1,19 @@
 #!/usr/bin/python3
 
-from base_geometry import BaseGeometry
+class BaseGeometry:
+    """
+    A class representing a base geometry.
 
-bg = BaseGeometry()
-
-try:
-    print(bg.area())
-except Exception as e:
-    print("[{}] {}".format(e.__class__.__name__, e))
-
-#!/usr/bin/python3
+    Methods:
+    - area(self): Raises an Exception with the message "area() is not implemented".
+    """
+    def area(self):
+        """
+        Calculate the area. This method is not implemented in the base class.
+        """
+        raise Exception("area() is not implemented")
 
 BaseGeometry = __import__('4-base_geometry').BaseGeometry
 
 bg = BaseGeometry()
-
-try:
-    print(bg.area())
-except Exception as e:
-    print("[{}] {}".format(e.__class__.__name__, e))
-
-# 4-base_geometry.py
-
-class BaseGeometry:
-    def area(self):
-        raise Exception("area() is not implemented")
+print(dir(bg))
