@@ -1,26 +1,24 @@
-#!/usr/bin/python3
 """
-Module 4-base_geometry
-Defines the BaseGeometry class with an area method.
+BaseGeometry class with a public instance method area().
 """
 
-class BaseGeometry:
-    """
-    A class representing a base geometry.
 
-    Methods:
-    - area(self): Raises an Exception with the message "area() is not implemented".
+
+class MetaClass(type):
     """
+    Oeveride dir() method to exclude __init__subclass__
+    """
+    def __dir__(cls):
+        return[attribute for attribute in super().__dir__() if attribute != '__init_subclass__']
+class BaseGeometry(metaclass=MetaClass):
+    """
+    BaseGeometry class with a public instance method area().
+    """
+    def __dir__(cls):
+        return[attribute for attribute in super().__dir__() if attribute != '__init_subclass__']
     def area(self):
         """
-        Calculate the area. This method is not implemented in the base class.
+        Public instance method that raises an Exception with the message
+        "area() is not implemented".
         """
         raise Exception("area() is not implemented")
-
-if __name__ == "__main__":
-    bg = BaseGeometry()
-
-    try:
-        print(dir(bg)[:-1])  # Exclude the last element to match the expected output
-    except Exception as e:
-        print("[{}] {}".format(e.__class__.__name__, e))
