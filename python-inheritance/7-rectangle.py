@@ -1,30 +1,37 @@
 #!/usr/bin/python3
-# 7-rectangle.py
-# dricko147
-"""Import '5-base_geometry' File"""
+"""Defines a class BaseGeometry based on 6-rectangle.py"""
+
+
+
 BaseGeometry = __import__('5-base_geometry').BaseGeometry
 
+
 class Rectangle(BaseGeometry):
-    """Represent a rectangle using BaseGeometry."""
+    """Class BaseGeometry.
+    """
 
     def __init__(self, width, height):
-        """Intialize a new Rectangle.
+        """Initialize a Rectangle instance.
 
         Args:
-            width (int): The width of the new Rectangle.
-            height (int): The height of the new Rectangle.
+            width (int): The width of the rectangle.
+            height (int): The height of the rectangle.
         """
-        super().integer_validator("width", width)
+        self.integer_validator("width", width)
+        self.integer_validator("height", height)
         self.__width = width
-        super().integer_validator("height", height)
         self.__height = height
 
+
     def area(self):
-        """Return the area of the rectangle."""
-        return self.__width * self.__height
+        """Area Function
+        Return height multiply by width
+        """
+        return self.__height * self.__width
+    
 
     def __str__(self):
-        """Return the print() and str() representation of a Rectangle."""
-        string = "[" + str(self.__class__.__name__) + "] "
-        string += str(self.__width) + "/" + str(self.__height)
-        return string
+        """__str__ Function
+        Return [Rectangle] <width>/<height>
+        """
+        return "[Rectangle] " + str(self.__width) + "/" + str(self.__height)
