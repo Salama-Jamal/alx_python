@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-# 8-square.py
-# dricko147
 """Defines a Rectangle subclass Square."""
 Rectangle = __import__('7-rectangle').Rectangle
 
