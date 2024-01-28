@@ -1,11 +1,14 @@
 #!/usr/bin/python3
-BaseGeometry = __import__('4-base_geometry').BaseGeometry
+"""Defines a class BaseGeometry based on 5-base_geometry.py"""
 
-bg = BaseGeometry()
-print(dir(bg))
 
+class BaseGeometry:
+    """Class BaseGeometry.
+    """
     def area(self):
-        """Not implemented."""
+        """Area function.
+
+        Raises:
+            Exception: if area is not implemented.
+        """
         raise Exception("area() is not implemented")
-
-
