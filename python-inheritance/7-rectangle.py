@@ -24,16 +24,16 @@ class BaseGeometry(metaclass=MetaClass):
         
         raise Exception("area() is not implemented")
 
-    def integer_validator(self, name, value):
+    def integer_validator(self, size, value):
         """
         Public instance method that validates an integer value.
         Raises a TypeError if the value is not an integer.
         Raises a ValueError if the value is less than or equal to 0.
         """
         if type(value) is not int:
-            raise TypeError("{} must be an integer".format(name))
+            raise TypeError("{} must be an integer".format(size))
         if value <=0:
-            raise ValueError("{} must be greater than 0".format(name))
+            raise ValueError("{} must be greater than 0".format(size))
 class Rectangle(BaseGeometry):
     """
     Rectangle class that inherits from BaseGeometry.
@@ -55,3 +55,15 @@ class Rectangle(BaseGeometry):
         String representation of the rectangle in the format [Rectangle] <width>/<height>.
         """
         return "[Rectangle] {}/{}".format(self.__width, self.__height)
+
+class Square(Rectangle):
+    """
+    A square class that inherits from retangle class
+    """
+   
+    
+    def __init__(self, size):
+        super().__init__(size,size)
+        self.integer_validator("size", size)
+    
+        
