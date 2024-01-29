@@ -1,29 +1,25 @@
+#!/usr/bin/python3
+"""Defines a base geometry class BaseGeometry."""
 
 
-class BaseGeometryMeta(type):
-    def __dir__(self) -> None:
-        """This will control inherited attribute access"""
-        attributes = super().__dir__()
-        return [
-            attribute for attribute in attributes if attribute != "__init_subclass__"
-        ]
-
-
-class BaseGeometry(metaclass=BaseGeometryMeta):
-    """BaseGeometry Class"""
-
-    def __dir__(self) -> None:
-        """This will control inherited attribute access"""
-        attributes = super().__dir__()
-        return [
-            attribute for attribute in attributes if attribute != "__init_subclass__"
-        ]
+class BaseGeometry:
+    """Reprsent base geometry."""
 
     def area(self):
+        """Not yet implemented."""
         raise Exception("area() is not implemented")
 
     def integer_validator(self, name, value):
-        if not isinstance(value, int):
+        """Validate a parameter as an integer.
+
+        Args:
+            name (str): The name of the parameter.
+            value (int): The parameter to validate.
+        Raises:
+            TypeError: If value is not an integer.
+            ValueError: If value is <= 0.
+        """
+        if type(value) != int:
             raise TypeError("{} must be an integer".format(name))
-        elif value <= 0:
+        if value <= 0:
             raise ValueError("{} must be greater than 0".format(name))
