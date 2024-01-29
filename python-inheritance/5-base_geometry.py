@@ -1,19 +1,29 @@
-"""
-This module contains the definition of the BaseGeometry class.
-"""
 
-class BaseGeometry:
-    """
-    This is an empty class that serves as a base for geometry-related classes.
-    """
+
+class BaseGeometryMeta(type):
+    def __dir__(self) -> None:
+        """This will control inherited attribute access"""
+        attributes = super().__dir__()
+        return [
+            attribute for attribute in attributes if attribute != "__init_subclass__"
+        ]
+
+
+class BaseGeometry(metaclass=BaseGeometryMeta):
+    """BaseGeometry Class"""
+
+    def __dir__(self) -> None:
+        """This will control inherited attribute access"""
+        attributes = super().__dir__()
+        return [
+            attribute for attribute in attributes if attribute != "__init_subclass__"
+        ]
+
     def area(self):
-        """
-        This is a method that raises an exception
-        """
         raise Exception("area() is not implemented")
+
     def integer_validator(self, name, value):
-        
         if not isinstance(value, int):
-            raise TypeError(f"{name} must be an integer")
-        if value <= 0:
-            raise ValueError(f"{name} must be greater than 0")
+            raise TypeError("{} must be an integer".format(name))
+        elif value <= 0:
+            raise ValueError("{} must be greater than 0".format(name))
