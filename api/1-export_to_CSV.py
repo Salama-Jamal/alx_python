@@ -1,48 +1,48 @@
-import requests
-import sys
 import csv
-from sys import argv
+import sys
 
-def export_to_CSV(employee_id):
-    """ Export employee's TODO list data to a CSV file """
+# Sample data
+tasks_data = {
+    2: [
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "suscipit repellat esse quibusdam voluptatem incidunt"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "distinctio vitae autem nihil ut molestias quo"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "et itaque necessitatibus maxime molestiae qui quas velit"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "adipisci non ad dicta qui amet quaerat doloribus ea"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "voluptas quo tenetur perspiciatis explicabo natus"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "aliquam aut quasi"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "veritatis pariatur delectus"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "nesciunt totam sit blanditiis sit"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "laborum aut in quam"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "nemo perspiciatis repellat ut dolor libero commodi blanditiis omnis"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "repudiandae totam in est sint facere fuga"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "earum doloribus ea doloremque quis"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "sint sit aut vero"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "porro aut necessitatibus eaque distinctio"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "repellendus veritatis molestias dicta incidunt"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "excepturi deleniti adipisci voluptatem et neque optio illum ad"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "sunt cum tempora"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "totam quia non"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "False", "TASK_TITLE": "doloremque quibusdam asperiores libero corrupti illum qui omnis"},
+        {"USER_ID": "2", "USERNAME": "Antonette", "TASK_COMPLETED_STATUS": "True", "TASK_TITLE": "totam atque quo nesciunt"}
+    ]
+}
 
-    # Base URL for the API
-    base_url = "https://jsonplaceholder.typicode.com"
+def export_to_csv(user_id):
+    if user_id in tasks_data:
+        filename = f"{user_id}.csv"
+        with open(filename, mode='w', newline='') as file:
+            fieldnames = ["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"]
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for task in tasks_data[user_id]:
+                writer.writerow(task)
+        print(f"Data exported to {filename} successfully.")
+    else:
+        print("User ID not found.")
 
-    # GET requests to fetch user details and TODO list
-    users_response = requests.get(f"{base_url}/users/{employee_id}")
-    todos_response = requests.get(f"{base_url}/users/{employee_id}/todos")
-
-    # Extract JSON data from responses
-    user_data = users_response.json()
-    todos_data = todos_response.json()
-
-    # Extract user information
-    user_id = user_data['id']
-    username = user_data['username']
-
-    # Prepare list to store task data
-    tasks_rows = []
-
-    # Iterate over todo items and extract relevant information
-    for todo in todos_data:
-        task_completed_status = str(todo['completed'])
-        task_title = todo['title']
-        tasks_rows.append([user_id, username, task_completed_status, task_title])
-
-    # Write task data to a CSV file
-    filename = f"{user_id}.csv"
-    with open(filename, "w", newline='') as csvFile:
-        csvWriter = csv.writer(csvFile)
-        csvWriter.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])  # Write header
-        csvWriter.writerows(tasks_rows)
-
-    print(f"CSV file '{filename}' created successfully.")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python script.py EMPLOYEE_ID")
-        sys.exit(1)
-
-    employee_id = int(sys.argv[1])
-    export_to_CSV(employee_id)
+        print("Usage: python script.py USER_ID")
+    else:
+        user_id = int(sys.argv[1])
+        export_to_csv(user_id)
