@@ -1,48 +1,46 @@
+import csv
 import requests
 import sys
-import csv
-from sys import argv
 
-def export_to_CSV(employee_id):
-    """ Export employee's TODO list data to a CSV file """
 
-    # Base URL for the API
-    base_url = "https://jsonplaceholder.typicode.com"
+def get_employee_info(employee_id):
+    """Fetch the employee details from the given url by appending the employee_id and convert the data to json"""
+    employee_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
+    employee_response = requests.get(employee_url)
+    employee_data = employee_response.json()
 
-    # GET requests to fetch user details and TODO list
-    users_response = requests.get(f"{base_url}/users/{employee_id}")
-    todos_response = requests.get(f"{base_url}/users/{employee_id}/todos")
-
-    # Extract JSON data from responses
-    user_data = users_response.json()
+    """fetch the employee's todo by appending the todo route to the url"""
+    todos_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
+    todos_response = requests.get(todos_url)
     todos_data = todos_response.json()
 
-    # Extract user information
-    user_id = user_data['id']
-    username = user_data['username']
+    """create csv file for the empoyee"""
+    file_name = f"{employee_id}.csv"
+    with open(file_name, mode="w", newline='') as csv_file:
+        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE' ]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
-    # Prepare list to store task data
-    tasks_rows = []
+        """Write the csv headers"""
+        writer.writeheader()
 
-    # Iterate over todo items and extract relevant information
-    for todo in todos_data:
-        task_completed_status = str(todo['completed'])
-        task_title = todo['title']
-        tasks_rows.append([user_id, username, task_completed_status, task_title])
+        """Write the rows under the epecified columns"""
+        for task in todos_data:
+            writer.writerow({
+                'USER_ID': employee_id,
+                'USERNAME': employee_data['username'],
+                'TASK_COMPLETED_STATUS': task['completed'],
+                'TASK_TITLE': task['title']
+            })
 
-    # Write task data to a CSV file
-    filename = f"{user_id}.csv"
-    with open(filename, "w", newline='') as csvFile:
-        csvWriter = csv.writer(csvFile)
-        csvWriter.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])  # Write header
-        csvWriter.writerows(tasks_rows)
 
-    print(f"CSV file '{filename}' created successfully.")
-
-if __name__ == '__main__':
+"""Obtain the employees details from the command line using the sys module"""
+if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python script.py EMPLOYEE_ID")
+        print("Usage: python script_name.py employee_id.")
         sys.exit(1)
 
+    """Get the employee id from the second argument"""
     employee_id = int(sys.argv[1])
-    export_to_CSV(employee_id)
+
+    """Call the function with the provided id"""
+    get_employee_info(employee_id)
