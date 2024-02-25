@@ -1,34 +1,20 @@
-"""import json, requests, sys"""
 import csv
-import requests
-import sys
-"""import json, requests, sys"""
+from task0 import get_employee_tasks
 
-def getData(id):
-    """
-    Get data from json api and export to json file
-    """
-    usersurl = "https://jsonplaceholder.typicode.com/users/{}".format(id)
-    todourl = "{}/todos".format(usersurl)
-
-    request1 = requests.get(usersurl)
-    result = request1.json()
-    userid = result['id']
-    username = result['username']
-
-    request2 = requests.get(todourl)
-    tasks = request2.json()
-
-
-    with open("{}.csv".format(userid), "w", newline='') as csvfile:
-        writer = csv.writer(csvfile, quoting = csv.QUOTE_ALL)
+def export_to_CSV(user_id):
+    tasks = get_employee_tasks(user_id)
+    file_name = f"{user_id}.csv"
+    
+    with open(file_name, 'w', newline='') as csvfile:
+        fieldnames = ["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        
         for task in tasks:
-            writer.writerow([userid, username, task['completed'], task['title']])
-
+            writer.writerow({"USER_ID": user_id, "USERNAME": task["username"], "TASK_COMPLETED_STATUS": task["completed"], "TASK_TITLE": task["title"]})
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        id = sys.argv[1]
-    else:
-        id = 1
-    getData(str(id))
+    import sys
+    user_id = int(sys.argv[1])
+    export_to_CSV(user_id)
