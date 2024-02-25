@@ -1,43 +1,48 @@
-import csv
 import requests
 import sys
+import csv
+from sys import argv
 
-def get_user_info(employee_id):
-    user_response = requests.get(f"https://jsonplaceholder.typicode.com/users/{employee_id}")
-    if user_response.status_code == 200:
-        user_data = user_response.json()
-        return user_data['id'], user_data['username']
-    else:
-        return None, None
+def export_to_CSV(employee_id):
+    """ Export employee's TODO list data to a CSV file """
 
-def main():
+    # Base URL for the API
+    base_url = "https://jsonplaceholder.typicode.com"
+
+    # GET requests to fetch user details and TODO list
+    users_response = requests.get(f"{base_url}/users/{employee_id}")
+    todos_response = requests.get(f"{base_url}/users/{employee_id}/todos")
+
+    # Extract JSON data from responses
+    user_data = users_response.json()
+    todos_data = todos_response.json()
+
+    # Extract user information
+    user_id = user_data['id']
+    username = user_data['username']
+
+    # Prepare list to store task data
+    tasks_rows = []
+
+    # Iterate over todo items and extract relevant information
+    for todo in todos_data:
+        task_completed_status = str(todo['completed'])
+        task_title = todo['title']
+        tasks_rows.append([user_id, username, task_completed_status, task_title])
+
+    # Write task data to a CSV file
+    filename = f"{user_id}.csv"
+    with open(filename, "w", newline='') as csvFile:
+        csvWriter = csv.writer(csvFile)
+        csvWriter.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])  # Write header
+        csvWriter.writerows(tasks_rows)
+
+    print(f"CSV file '{filename}' created successfully.")
+
+if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print("Usage: python3 1-export_to_CSV.py <employee_id>")
+        print("Usage: python script.py EMPLOYEE_ID")
         sys.exit(1)
 
-    employee_id = sys.argv[1]
-
-    user_id, username = get_user_info(employee_id)
-
-    if user_id is None:
-        print(f"User with ID {employee_id} not found.")
-        sys.exit(1)
-
-    response = requests.get(f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}")
-    tasks = response.json()
-
-    csv_filename = f"{user_id}.csv"
-
-    with open(csv_filename, 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile)
-        csv_writer.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])
-
-        for task in tasks:
-            task_completed_status = task['completed']
-            task_title = task['title']
-            csv_writer.writerow([user_id, username, str(task_completed_status), task_title])
-
-    print(f"Data has been exported to {csv_filename}")
-
-if __name__ == "__main__":
-    main()
+    employee_id = int(sys.argv[1])
+    export_to_CSV(employee_id)
