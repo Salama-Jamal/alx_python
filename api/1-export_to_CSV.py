@@ -1,53 +1,41 @@
 import csv
+import os
+import requests
 import sys
 
-# Sample data representing tasks assigned to users
-tasks_data = {
-    1: [
-        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "delectus aut autem"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "quis ut nam facilis et officia qui"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "fugiat veniam minus"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "et porro tempora"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "laboriosam mollitia et enim quasi adipisci quia provident illum"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "qui ullam ratione quibusdam voluptatem quia omnis"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "illo expedita consequatur quia in"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "quo adipisci enim quam ut ab"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "molestiae perspiciatis ipsa"},
-        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "illo est ratione doloremque quia maiores aut"}
-    ],
-    2: [
-        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "delectus aut autem"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "quis ut nam facilis et officia qui"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "fugiat veniam minus"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "et porro tempora"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "laboriosam mollitia et enim quasi adipisci quia provident illum"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "qui ullam ratione quibusdam voluptatem quia omnis"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "illo expedita consequatur quia in"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "quo adipisci enim quam ut ab"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "molestiae perspiciatis ipsa"},
-        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "illo est ratione doloremque quia maiores aut"}
-    ]
-}
 
-def export_to_csv(user_id):
-    # Define file name based on user ID
-    filename = f"{user_id}.csv"
-    with open(filename, mode='w', newline='') as file:
-        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        for task in tasks_data.get(user_id, []):
-            writer.writerow({
-                'USER_ID': task['user_id'],
-                'USERNAME': task['username'],
-                'TASK_COMPLETED_STATUS': str(task['completed']),
-                'TASK_TITLE': task['title']
-            })
+
+def get_employee_todo_progress(employee_id):
+    # Fetch employee details
+    employee_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    response = requests.get(employee_url)
+    employee_data = response.json()
+    employee_name = employee_data['username']  # Changed from 'name' to 'username'
+
+    # Fetch TODO list for the employee
+    todos_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos"
+    response = requests.get(todos_url)
+    todos = response.json()
+
+    # Create CSV file name
+    csv_filename = os.path.join(os.getcwd(), f"{employee_id}.csv")  # Specify full path for the CSV file
+
+    # Write data to CSV file
+    with open(csv_filename, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+        
+        # Write each task to CSV
+        for todo in todos:
+            csv_writer.writerow([employee_id, employee_name, todo['completed'], todo['title']])
+
+    
+    return csv_filename
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python3 script_name.py USER_ID")
+        print("Usage: python script.py <employee_id>")
         sys.exit(1)
     
-    user_id = int(sys.argv[1])
-    export_to_csv(user_id)
+    employee_id = int(sys.argv[1])
+    csv_filename = get_employee_todo_progress(employee_id)
+    
