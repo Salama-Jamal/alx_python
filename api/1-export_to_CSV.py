@@ -1,37 +1,27 @@
-import csv
 import requests
 import sys
 
-if len(sys.argv) != 2:
-    print("Please provide an ID as an argument.")
-    sys.exit(1)
+def getEmployeeAndTodo(id):
+    url = f"https://jsonplaceholder.typicode.com/users/{id}/todos"
+    res = requests.get(url)
+    todos = res.json()
 
-id = sys.argv[1]
-url1 = f'https://jsonplaceholder.typicode.com/users/{id}/todos'
-empurl = f'https://jsonplaceholder.typicode.com/users/{id}'
+    url = f"https://jsonplaceholder.typicode.com/users/{id}"
+    res = requests.get(url)
+    employee = res.json()
 
-res1 = requests.get(url1)
-if res1.status_code != 200:
-    print(f"Error: Unable to fetch data from {url1}")
-    sys.exit(1)
-data1 = res1.json()
+    completed_tasks = sum(1 for todo in todos if todo['completed'])
+    all_tasks = len(todos)
 
-res2 = requests.get(empurl)
-if res2.status_code != 200:
-    print(f"Error: Unable to fetch data from {empurl}")
-    sys.exit(1)
-employeedata = res2.json()
+    print(f"Employee {employee['name']} is done with tasks({completed_tasks}/{all_tasks}):")
+    for todo in todos:
+        if todo['completed']:
+            print(f"\t {todo['title']}")
 
-USER_ID = employeedata['id']
-USERNAME = employeedata['username']
-TASK_COMPLETED_STATUS = ''
-TOTAL_NUMBER_OF_TASKS = len(data1)
-TASK_TITLE = ''
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print(f"what is the id: {sys.argv[0]} EMPLOYEE_ID")
+        sys.exit(1)
 
-with open(f'{USER_ID}.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(['User ID', 'Username', 'Task Completed Status', 'Task Title'])
-    for i in range(len(data1)):
-        TASK_COMPLETED_STATUS = data1[i]['completed']
-        TASK_TITLE = data1[i]['title']
-        writer.writerow([USER_ID, USERNAME, TASK_COMPLETED_STATUS, TASK_TITLE])
+    id = sys.argv[1]
+    getEmployeeAndTodo(id)
