@@ -1,49 +1,26 @@
-import sys
 import csv
-import requests
+import requests 
+from sys import argv
 
-# Function to fetch employee data from the API
-def fetch_employee_data(employee_id):
-    try:
-        # Fetch employee details
-        response = requests.get(f"https://jsonplaceholder.typicode.com/users/{employee_id}")
-        response.raise_for_status()
-        employee_data = response.json()
-        
-        # Fetch employee's TODO list
-        response = requests.get(f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos")
-        response.raise_for_status()
-        todos_data = response.json()
-        
-        return employee_data, todos_data
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+id = argv[1]
+url1 = f'https://jsonplaceholder.typicode.com/users/{id}/todos'
+empurl= f'https://jsonplaceholder.typicode.com/users/{id}'
 
-# Function to export data to CSV file
-def export_to_csv(employee_id, employee_data, todos_data):
-    try:
-        filename = f"{employee_id}.csv"
-        with open(filename, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])
-            for todo in todos_data:
-                writer.writerow([employee_id, employee_data['username'], str(todo['completed']), todo['title']])
-        print(f"Data exported to {filename}")
-    except Exception as e:
-        print(f"Error exporting to CSV: {e}")
+res1 = requests.get(url1)
+data1 = res1.json()
 
-# Main function
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python3 script_name.py employee_id")
-        sys.exit(1)
-    
-    employee_id = sys.argv[1]
-    if not employee_id.isdigit():
-        print("Error: Employee ID must be an integer.")
-        sys.exit(1)
-    
-    employee_id = int(employee_id)
-    employee_data, todos_data = fetch_employee_data(employee_id)
-    export_to_csv(employee_id, employee_data, todos_data)
+res2 = requests.get(empurl)
+employeedata = res2.json()
+
+USER_ID = employeedata['id']
+USERNAME = employeedata['username']
+TASK_COMPLETED_STATUS = ''
+TOTAL_NUMBER_OF_TASKS = len(data1)
+TASK_TITLE = ''
+
+with open(f'{USER_ID}.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
+    for i in range(len(data1)):
+        TASK_COMPLETED_STATUS = data1[i]['completed']
+        TASK_TITLE = data1[i]['title']
+        writer.writerow([USER_ID,USERNAME,TASK_COMPLETED_STATUS,TASK_TITLE])
