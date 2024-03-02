@@ -1,34 +1,44 @@
-#!/usr/bin/python3
-"""Exports to-do list information for a given employee ID to CSV format."""
-
 import csv
 import requests
 import sys
 
+def get_employee_info(employee_id):
+    # Get employee details
+    employee_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
+    employee_response = requests.get(employee_url)
+    employee_data = employee_response.json()
+
+    # Get employee's TODO list
+    todo_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
+    todo_response = requests.get(todo_url)
+    todo_data = todo_response.json()
+
+    # Extract relevant information
+    employee_name = employee_data['username']
+    total_tasks = len(todo_data)
+
+    # Create CSV file
+    csv_filename = f'{employee_id}.csv'
+    with open(csv_filename, mode='w', newline='') as csv_file:
+        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+        writer.writeheader()
+
+        for task in todo_data:
+            writer.writerow({
+                'USER_ID': employee_id,
+                'USERNAME': employee_name,
+                'TASK_COMPLETED_STATUS': str(task['completed']),
+                'TASK_TITLE': task['title']
+            })
+
+    print(f'Data exported to {csv_filename} (Total tasks: {total_tasks})')
 
 if __name__ == "__main__":
-    # Get the user ID from the command-line arguments provided to the script
-    user_id = sys.argv[1]
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <employee_id>")
+        sys.exit(1)
 
-    # Define the base URL for the JSON API
-    url = "https://jsonplaceholder.typicode.com/"
-
-    # Fetch user information from the API and
-    #   convert the response to a JSON object
-    user = requests.get(url + "users/{}".format(user_id)).json()
-
-    # Extract the username from the user data
-    username = user.get("username")
-
-    # Fetch the to-do list items associated with the
-    #   given user ID and convert the response to a JSON object
-    todos = requests.get(url + "todos", params={"userId": user_id}).json()
-
-    # Use list comprehension to iterate over the to-do list items
-    # Write each item's details (user ID, username, completion status,
-    #   and title) as a row in the CSV file
-    with open("{}.csv".format(user_id), "w", newline="") as csvfile:
-        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
-        [writer.writerow(
-            [user_id, username, t.get("completed"), t.get("title")]
-         ) for t in todos]
+    employee_id = int(sys.argv[1])
+    get_employee_info(employee_id)
