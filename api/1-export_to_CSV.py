@@ -1,49 +1,41 @@
+""" Using what you did in the task #0, extend your Python script to export
+data in the CSV format. """
 import csv
 import requests
-import sys
+from sys import argv
 
 
-employee_id = int(sys.argv[1]) 
+def export_to_CSV(sizeofReq):
+    """ The task define export to the CSV format"""
 
-#fetching employee general details
-employee_details = requests.get(f"https://jsonplaceholder.typicode.com/users/{employee_id}")
-employee_data = employee_details.json()
+    # Variables
+    allTasks = []
 
-#fetching employee todo list details
-employee_todos = requests.get(f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos")
-todos_details = employee_todos.json()
+    link = "https://jsonplaceholder.typicode.com"
 
-def todo_list_progress(employee_id):
-    
-    #fetching employee name
-    employee_name = employee_data["name"]
-    
-    #fetching employee total todo list length and completed tasks
-    total_tasks = len(todos_details)
-    completed_tasks = sum(1 for todo in todos_details if todo["completed"])
-    
-    #printing employee todo list progress          
-    print("Employee {} is done with tasks({}/{}):".format(employee_name, completed_tasks, total_tasks))
+    # get requests
+    usersRes = requests.get("{}/users/{}".format(link, sizeofReq))
+    todosRes = requests.get("{}/users/{}/todos".format(link, sizeofReq))
 
-    for todo in todos_details:
-        if todo["completed"]:
-            print(f"\t {todo['title']}")
-            
-    
-def write_to_csv(employee_id, employee_name, todos_details):
-     with open("USER_ID.csv", "w", newline="") as csvfile:
-         fieldnames = ["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"]
-         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-         
-         writer.writeheader()
-         for todo in todos_details:
-            writer.writerow({
-                "USER_ID": employee_id,
-                "USERNAME": employee_name,
-                "TASK_COMPLETED_STATUS":str(todo['completed']),
-                "TASK_TITLE": todo['title']
-            })
-        
-if __name__ == "__main__":   
-    todo_list_progress(employee_id)
-    write_to_csv(employee_id, employee_data['name'], todos_details)
+    # Get the json from responses
+    name = usersRes.json().get('username')
+    todosJson = todosRes.json()
+
+    # Save the employee Name -- Loop the tasks and save
+    for task in todosJson:
+        taskRow = []
+        taskRow.append(sizeofReq)
+        taskRow.append(name)
+        taskRow.append(task.get('completed'))
+        taskRow.append(task.get('title'))
+        allTasks.append(taskRow)
+
+    with open("{}.csv".format(sizeofReq), "w") as csvFile:
+        csvWriter = csv.writer(csvFile, quoting=csv.QUOTE_ALL)
+        csvWriter.writerows(allTasks)
+
+    return 0
+
+
+if __name__ == '__main__':
+    export_to_CSV(int(argv[1]))
