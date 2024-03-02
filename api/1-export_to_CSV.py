@@ -1,40 +1,60 @@
 import csv
-import os
 import requests
 import sys
 
+def employee_info(employee_id):
+    """Retrieve employee details and tasks from the given URL."""
+    # Construct URLs for employee details and tasks
+    employee_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
+    todos_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
 
+    # Make HTTP GET requests to fetch data
+    employee_response = requests.get(employee_url)
+    todos_response = requests.get(todos_url)
 
-def get_employee_todo_progress(employee_id):
-    # Fetch employee details
-    employee_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
-    response = requests.get(employee_url)
-    employee_data = response.json()
-    employee_name = employee_data['username']  # Changed from 'name' to 'username'
+    # Extract relevant information from the responses
+    employee_data = employee_response.json()
+    todos_data = todos_response.json()
 
-    # Fetch TODO list for the employee
-    todos_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos"
-    response = requests.get(todos_url)
-    todos = response.json()
+    # Initialize a list to store task details
+    tasks = []
 
-    # Create CSV file name
-    csv_filename = os.path.join(os.getcwd(), f"{employee_id}.csv")  # Specify full path for the CSV file
+    # Extract task details
+    for task in todos_data:
+        task_details = (
+            employee_id,
+            employee_data['username'],
+            task['completed'],
+            task['title']
+        )
+        tasks.append(task_details)
 
-    # Write data to CSV file
-    with open(csv_filename, 'w', newline='') as csvfile:
-        csv_writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
-        
-        # Write each task to CSV
-        for todo in todos:
-            csv_writer.writerow([employee_id, employee_name, todo['completed'], todo['title']])
+    """creating csv file for the empoyee"""
+    file_name = f"{employee_id}.csv"
+    with open(file_name, "w", newline='') as csv_file:
+        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE' ]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
-    
-    return csv_filename
+        """Write the csv headers"""
+        writer.writeheader()
+
+        """Write the rows under the epecified columns"""
+        for task in todos_data:
+            writer.writerow({
+                'USER_ID': employee_id,
+                'USERNAME': employee_data['username'],
+                'TASK_COMPLETED_STATUS': task['completed'],
+                'TASK_TITLE': task['title']
+            })
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python script.py <employee_id>")
+        print("Usage: python script_name.py employee_id.")
         sys.exit(1)
-    
+
+    # Extract employee ID from command-line argument
     employee_id = int(sys.argv[1])
-    csv_filename = get_employee_todo_progress(employee_id)
+
+    # Call the function to retrieve and record employee task details
+    employee_info(employee_id)
