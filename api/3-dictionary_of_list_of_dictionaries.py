@@ -1,36 +1,40 @@
-"""import json, requests"""
-import json
+# python program to export file in json as dictionary
+
 import requests
-"""import json, requests"""
+import sys
 
+def get_employee_info(employee_id):
+    employee_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
+    employee_response = requests.get(employee_url)
+    employee_data = employee_response.json()
 
-def getData():
-    """
-    Get data from json api and export to json file
-    """
-    usersurl = "https://jsonplaceholder.typicode.com/users"
+    if not employee_data:
+        print(f"Error: Employee with ID {employee_id} not found.")
+        return
+    employee_name = employee_data['name']
 
-    request1 = requests.get(usersurl)
-    results = request1.json()
+    # fetching the TODO list for the employee
+    todo_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
+    todo_response = requests.get(todo_url)
+    todo_data = todo_response.json()
 
-    alldata = {}
+    # calculating the TODO list progress
+    total_tasks = len(todo_data)
+    completed_tasks = sum(task['completed'] for task in todo_data)
 
-    for result in results:
-        username = result['username']
-        userid = result['id']
-        todourl = "https://jsonplaceholder.typicode.com/users/{}/todos".format(userid)
-        request2 = requests.get(todourl)
-        tasks = request2.json()
-        jsondata = [
-                {"username": username, "task": task['title'], "completed": task['completed']}
-                for task in tasks
-            ]
-        
-        alldata[str(userid)] = jsondata
+    # to output employee TODO list progress
+    print(f"Employee {employee_name} is done with tasks({completed_tasks}/{total_tasks}):")
 
-    with open("todo_all_employees.json", "w") as jsonfile:
-        json.dump(alldata, jsonfile)
+    # to output titles of completed taskes
+    for task in todo_data:
+        if task['completed']:
+            print(f"\t {task['title']}")
 
 
 if __name__ == "__main__":
-    getData()
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <employee_id>")
+        sys.exit(1)
+
+    employee_id = int(sys.argv[1])
+    get_employee_info(employee_id)
