@@ -1,51 +1,44 @@
-"""fetching employee,TODO lists and counting completed tasks
-"""
-
 import csv
 import requests
 import sys
 
-def fetch_user_info(user_id):
-    url = 'https://jsonplaceholder.typicode.com/'
-    user_url = '{}users/{}'.format(url, user_id)
-    response = requests.get(user_url)
-    user_info = response.json()
-    return user_info
+def get_employee_info(employee_id):
+    # Get employee details
+    employee_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
+    employee_response = requests.get(employee_url)
+    employee_data = employee_response.json()
 
+    # Get employee's TODO list
+    todo_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
+    todo_response = requests.get(todo_url)
+    todo_data = todo_response.json()
 
-def fetch_user_todos(user_id):
-    url = 'https://jsonplaceholder.typicode.com/'
-    todos_url = '{}todos?userId={}'.format(url, user_id)
-    response = requests.get(todos_url)
-    todos = response.json()
-    return todos
+    # Extract relevant information
+    employee_name = employee_data['username']
+    total_tasks = len(todo_data)
 
-
-def export_to_csv(user_id, user_info, todos):
-    filename = '{}.csv'.format(user_id)
-    with open(filename, 'w', newline='') as csvfile:
-        fieldnames = ['USER_ID', 'USERNAME',
-                      'TASK_COMPLETED_STATUS', 'TASK_TITLE']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    # Create CSV file
+    csv_filename = f'{employee_id}.csv'
+    with open(csv_filename, mode='w', newline='') as csv_file:
+        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         writer.writeheader()
 
-        for todo in todos:
+        for task in todo_data:
             writer.writerow({
-                'USER_ID': user_id,
-                'USERNAME': user_info['username'],
-                'TASK_COMPLETED_STATUS': 'Completed' if todo['completed'] else 'Incomplete',
-                'TASK_TITLE': todo['title']
+                'USER_ID': employee_id,
+                'USERNAME': employee_name,
+                'TASK_COMPLETED_STATUS': str(task['completed']),
+                'TASK_TITLE': task['title']
             })
-    print(f"CSV file '{filename}' has been created successfully.")
 
+    print(f'Data exported to {csv_filename} (Total tasks: {total_tasks})')
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python script.py <user_id>")
+        print("Usage: python script.py <employee_id>")
         sys.exit(1)
 
-    user_id = sys.argv[1]
-    user_info = fetch_user_info(user_id)
-    todos = fetch_user_todos(user_id)
-    export_to_csv(user_id, user_info, todos)
+    employee_id = int(sys.argv[1])
+    get_employee_info(employee_id)
