@@ -1,41 +1,40 @@
-""" Using what you did in the task #0, extend your Python script to export
-data in the CSV format. """
+#!/usr/bin/python3
+'''
+A script to export data in the CSV format.
+'''
+
+"""import json, requests, sys"""
 import csv
 import requests
-from sys import argv
+import sys
+"""import json, requests, sys"""
 
 
-def export_to_CSV(sizeofReq):
-    """ The task define export to the CSV format"""
+def getData(id):
+    """
+    Get data from json api and export to json file
+    """
+    usersurl = "https://jsonplaceholder.typicode.com/users/{}".format(id)
+    todourl = "{}/todos".format(usersurl)
 
-    # Variables
-    allTasks = []
+    request1 = requests.get(usersurl)
+    result = request1.json()
+    userid = result['id']
+    username = result['username']
 
-    link = "https://jsonplaceholder.typicode.com"
-
-    # get requests
-    usersRes = requests.get("{}/users/{}".format(link, sizeofReq))
-    todosRes = requests.get("{}/users/{}/todos".format(link, sizeofReq))
-
-    # Get the json from responses
-    name = usersRes.json().get('username')
-    todosJson = todosRes.json()
-
-    # Save the employee Name -- Loop the tasks and save
-    for task in todosJson:
-        taskRow = []
-        taskRow.append(sizeofReq)
-        taskRow.append(name)
-        taskRow.append(task.get('completed'))
-        taskRow.append(task.get('title'))
-        allTasks.append(taskRow)
-
-    with open("{}.csv".format(sizeofReq), "w") as csvFile:
-        csvWriter = csv.writer(csvFile, quoting=csv.QUOTE_ALL)
-        csvWriter.writerows(allTasks)
-
-    return 0
+    request2 = requests.get(todourl)
+    tasks = request2.json()
 
 
-if __name__ == '__main__':
-    export_to_CSV(int(argv[1]))
+    with open("{}.csv".format(userid), "w", newline='') as csvfile:
+        writer = csv.writer(csvfile, quoting = csv.QUOTE_ALL)
+        for task in tasks:
+            writer.writerow([userid, username, task['completed'], task['title']])
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        id = sys.argv[1]
+    else:
+        id = 1
+    getData(str(id))
