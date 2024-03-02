@@ -2,43 +2,36 @@ import csv
 import requests
 import sys
 
-def get_employee_info(employee_id):
-    # Get employee details
-    employee_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
-    employee_response = requests.get(employee_url)
-    employee_data = employee_response.json()
+if len(sys.argv) != 2:
+    print("Please provide an ID as an argument.")
+    sys.exit(1)
 
-    # Get employee's TODO list
-    todo_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
-    todo_response = requests.get(todo_url)
-    todo_data = todo_response.json()
+id = sys.argv[1]
+url1 = f'https://jsonplaceholder.typicode.com/users/{id}/todos'
+empurl = f'https://jsonplaceholder.typicode.com/users/{id}'
 
-    # Extract relevant information
-    employee_name = employee_data['username']
-    total_tasks = len(todo_data)
+res1 = requests.get(url1)
+if res1.status_code != 200:
+    print(f"Error: Unable to fetch data from {url1}")
+    sys.exit(1)
+data1 = res1.json()
 
-    # Create CSV file
-    csv_filename = f'{employee_id}.csv'
-    with open(csv_filename, mode='w', newline='') as csv_file:
-        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+res2 = requests.get(empurl)
+if res2.status_code != 200:
+    print(f"Error: Unable to fetch data from {empurl}")
+    sys.exit(1)
+employeedata = res2.json()
 
-        writer.writeheader()
+USER_ID = employeedata['id']
+USERNAME = employeedata['username']
+TASK_COMPLETED_STATUS = ''
+TOTAL_NUMBER_OF_TASKS = len(data1)
+TASK_TITLE = ''
 
-        for task in todo_data:
-            writer.writerow({
-                'USER_ID': employee_id,
-                'USERNAME': employee_name,
-                'TASK_COMPLETED_STATUS': str(task['completed']),
-                'TASK_TITLE': task['title']
-            })
-
-    print(f'Data exported to {csv_filename} (Total tasks: {total_tasks})')
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <employee_id>")
-        sys.exit(1)
-
-    employee_id = int(sys.argv[1])
-    get_employee_info(employee_id)
+with open(f'{USER_ID}.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['User ID', 'Username', 'Task Completed Status', 'Task Title'])
+    for i in range(len(data1)):
+        TASK_COMPLETED_STATUS = data1[i]['completed']
+        TASK_TITLE = data1[i]['title']
+        writer.writerow([USER_ID, USERNAME, TASK_COMPLETED_STATUS, TASK_TITLE])
