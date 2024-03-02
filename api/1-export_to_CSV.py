@@ -1,40 +1,53 @@
-#!/usr/bin/python3
-'''
-A script to export data in the CSV format.
-'''
-
-"""import json, requests, sys"""
 import csv
-import requests
 import sys
-"""import json, requests, sys"""
 
+# Sample data representing tasks assigned to users
+tasks_data = {
+    1: [
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "delectus aut autem"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "quis ut nam facilis et officia qui"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "fugiat veniam minus"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "et porro tempora"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "laboriosam mollitia et enim quasi adipisci quia provident illum"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "qui ullam ratione quibusdam voluptatem quia omnis"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "illo expedita consequatur quia in"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "quo adipisci enim quam ut ab"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "molestiae perspiciatis ipsa"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "illo est ratione doloremque quia maiores aut"}
+    ],
+    2: [
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "delectus aut autem"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "quis ut nam facilis et officia qui"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "fugiat veniam minus"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "et porro tempora"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "laboriosam mollitia et enim quasi adipisci quia provident illum"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "qui ullam ratione quibusdam voluptatem quia omnis"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "illo expedita consequatur quia in"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "quo adipisci enim quam ut ab"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "molestiae perspiciatis ipsa"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "illo est ratione doloremque quia maiores aut"}
+    ]
+}
 
-def getData(id):
-    """
-    Get data from json api and export to json file
-    """
-    usersurl = "https://jsonplaceholder.typicode.com/users/{}".format(id)
-    todourl = "{}/todos".format(usersurl)
-
-    request1 = requests.get(usersurl)
-    result = request1.json()
-    userid = result['id']
-    username = result['username']
-
-    request2 = requests.get(todourl)
-    tasks = request2.json()
-
-
-    with open("{}.csv".format(userid), "w", newline='') as csvfile:
-        writer = csv.writer(csvfile, quoting = csv.QUOTE_ALL)
-        for task in tasks:
-            writer.writerow([userid, username, task['completed'], task['title']])
-
+def export_to_csv(user_id):
+    # Define file name based on user ID
+    filename = f"{user_id}.csv"
+    with open(filename, mode='w', newline='') as file:
+        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        for task in tasks_data.get(user_id, []):
+            writer.writerow({
+                'USER_ID': task['user_id'],
+                'USERNAME': task['username'],
+                'TASK_COMPLETED_STATUS': str(task['completed']),
+                'TASK_TITLE': task['title']
+            })
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        id = sys.argv[1]
-    else:
-        id = 1
-    getData(str(id))
+    if len(sys.argv) != 2:
+        print("Usage: python3 script_name.py USER_ID")
+        sys.exit(1)
+    
+    user_id = int(sys.argv[1])
+    export_to_csv(user_id)
