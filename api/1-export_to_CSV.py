@@ -1,52 +1,33 @@
 import csv
 import requests
-import sys 
+from sys import argv
 
-def fetch_todo_list_progress(employee_id):
-    # Fetching employee details
-    employee_response = requests.get(
-        f"https://jsonplaceholder.typicode.com/users/{employee_id}")
-    employee_data = employee_response.json()
-    employee_name = employee_data['name']
+def export_to_CSV(sizeofReq):
+    
+    allTasks = []
 
+    link = "https://jsonplaceholder.typicode.com"
 
-    # Fetching todo list for the employee
-    todo_response = requests.get(
-        f"https://jsonplaceholder.typicode.com/users/{employee_id}/todos")
-    todo_data = todo_response.json()
+    usersRes = requests.get("{}/users/{}".format(link, sizeofReq))
+    todosRes = requests.get("{}/users/{}/todos".format(link, sizeofReq))
 
+    name = usersRes.json().get('username')
+    todosJson = todosRes.json()
 
-    # Counting completed tasks
-    completed_tasks = [task for task in todo_data if task['completed']]
-    #num_completed_tasks = len(completed_tasks)
-    #total_tasks = len(todo_data)
+    for task in todosJson:
+        taskRow = []
+        taskRow.append(sizeofReq)
+        taskRow.append(name)
+        taskRow.append(task.get('completed'))
+        taskRow.append(task.get('title'))
+        allTasks.append(taskRow)
 
+    with open("{}.csv".format(sizeofReq), "w") as csvFile:
+        csvWriter = csv.writer(csvFile, quoting=csv.QUOTE_ALL)
+        csvWriter.writerows(allTasks)
 
-    # Writting data to CSV file
-    csv_filename = f"{employee_id}.csv"
-    with open(csv_filename, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])
-        for task in todo_data:
-            writer.writerow([employee_id, employee_name, str(task['completed']), task['title']])
-
-    print(f"Data exported to {csv_filename}")
-
-    # Return the number of tasks in the CSV file
-    return len(todo_data)
+    return 0
 
 
-    # Printing employee todo list progress
-    #print(
-    #    f"Employee {employee_name} is done with tasks ({num_completed_tasks}/{total_tasks}):")
-    #for task in completed_tasks:
-    #    print(f"\t{task['title']}")
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <employee_id>")
-        sys.exit(1)
-    employee_id = sys.argv[1]
-    num_tasks = fetch_todo_list_progress(employee_id)
-    print(f"Number of tasks in CSV: {num_tasks}")
+if __name__ == '__main__':
+    export_to_CSV(int(argv[1]))
