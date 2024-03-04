@@ -1,34 +1,37 @@
-"""import json, requests, sys"""
+#!/usr/bin/python3
+"""
+Check student .CSV output of user information
+"""
+
 import csv
 import requests
 import sys
-"""import json, requests, sys"""
 
-def getData(id):
-    """
-    Get data from json api and export to json file
-    """
-    usersurl = "https://jsonplaceholder.typicode.com/users/{}".format(id)
-    todourl = "{}/todos".format(usersurl)
-
-    request1 = requests.get(usersurl)
-    result = request1.json()
-    userid = result['id']
-    username = result['username']
-
-    request2 = requests.get(todourl)
-    tasks = request2.json()
+users_url = "https://jsonplaceholder.typicode.com/users?id="
+todos_url = "https://jsonplaceholder.typicode.com/todos"
 
 
-    with open("{}.csv".format(userid), "w", newline='') as csvfile:
-        writer = csv.writer(csvfile, quoting = csv.QUOTE_ALL)
-        for task in tasks:
-            writer.writerow([userid, username, task['completed'], task['title']])
+def user_info(id):
+    """Check user information"""
+
+    total_tasks = 0
+    response = requests.get(todos_url).json()
+    for i in response:
+        if i["userId"] == id:
+            total_tasks += 1
+
+    num_lines = 0
+    with open(str(id) + ".csv", "r") as f:
+        for line in f:
+            if not line == "\n":
+                num_lines += 1
+
+    if total_tasks == num_lines:
+        print("Number of tasks in CSV: OK")
+    else:
+        print("Number of tasks in CSV: Incorrect")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        id = sys.argv[1]
-    else:
-        id = 1
-    getData(str(id))
+    user_info(int(sys.argv[1]))
+    
